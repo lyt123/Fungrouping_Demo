@@ -24,4 +24,4 @@ IlluminateRoute::$validators = array_filter($validators, function($validator) {
 Route::get('/', function () {
     return view('welcome');
 });
-Route::post('/Home/user/login', 'Auth\UserController@login');
+Route::post('/Home/user/login', 'UserController@login');
