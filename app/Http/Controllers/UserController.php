@@ -13,6 +13,7 @@ class UserController extends Controller
 {
     public function __construct()
     {
+        $this->middleware('must_login', ['except' => ['login', 'sendMsg', 'addUser', 'logout']]);
     }
 
     public function login(Requests\User\LoginRequest $req)
@@ -100,8 +101,13 @@ class UserController extends Controller
         ]);
         $data = $req->all();
 
-        if ($user = UserRepository::read(['where' => ['password' => $data['prepassword']]], true)) {
-            UserRepository::updateData(array('password' => $data['newpassword']), $user->id);
+        $user_data = UserRepository::read(['id' => session()->get('user.id')], true);
+
+        if (
+            password_verify($data['prepassword'], $user_data['password'])
+        ) {
+            UserRepository::updateData(array(
+                'password' => password_hash($data['newpassword'], PASSWORD_DEFAULT)), ['id' => $user_data['id']]);
             return success();
         }
         return fail(trans('tip.origin_password_wrong'));
@@ -132,6 +138,10 @@ class UserController extends Controller
         return fail(trans('tip.forget_password_send_message_fail'));
     }
 
+    /**
+     * Des :
+     * Auth:lyt123
+     */
     public function forgetPasswordCheckCode(Request $req)
     {
         $data = $req->only('code');

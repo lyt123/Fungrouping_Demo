@@ -28,6 +28,7 @@ return [
     'forget_password_send_message_fail' =>             '手机号错误',
     'origin_password_wrong'             =>             '原密码错误',
     'not_check_code'                    =>             '请先验证手机号',
+    'not_login'                         =>             '未登录',
 
     'nothing_update'                    =>             '信息未改动',
     'register_success'                  =>             '注册成功',
