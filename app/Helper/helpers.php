@@ -1,10 +1,10 @@
 <?php
 
-function d($data = 'haha'){
-    if(gettype($data) == 'object'){
-        dump($data->toArray());
+function d($data1 = 'haha', $data2 = '', $data3 = '', $data4 = ''){
+    if(gettype($data1) == 'object'){
+        dump($data1->toArray());
     }else{
-        dump($data);
+        dump($data1);
     }
 }
 
@@ -28,7 +28,7 @@ if(! function_exists('success')) {
      */
     function success($data = [], $message = '', $status = 200)
     {
-        $message = $message ?: trans('tips.200');
+        $message = $message ?: trans('tip.200');
 
         $response = [
             'status'   => $status,
@@ -52,7 +52,7 @@ if(! function_exists('fail')) {
     {
         $data = [
             'status'  => $status,
-            'inform' => $inform ?: trans('tips.fail')
+            'inform' => $inform ?: trans('tip.fail')
         ];
 
         if(config('app.debug')) {
@@ -63,5 +63,45 @@ if(! function_exists('fail')) {
         //        if(env('APP_DEBUG', false))
 
         return response()->json($data, $status);
+    }
+}
+
+if(! function_exists('get_data_in_array')) {
+
+    /**
+     * Description : 获取数组中指定值组合
+     * Auth : Shelter
+     *
+     * @param array $data
+     * @param array $keys
+     */
+    function get_data_in_array(array $data, array $keys)
+    {
+        $result = array();
+        foreach($keys as $key) {
+            if(isset($data[$key])) $result[$key] = $data[$key];
+        }
+        return $result;
+    }
+}
+
+if(! function_exists('remove_file')) {
+
+    /**
+     * Description : remove_files
+     * Auth : Shelter
+     *
+     * @param $paths
+     */
+    function remove_files($paths)
+    {
+        if(is_array($paths)) {
+            foreach($paths as $path) {
+                if(file_exists($path)) unlink($path);
+            }
+        }
+        else {
+            if(file_exists($paths)) unlink($paths);
+        }
     }
 }

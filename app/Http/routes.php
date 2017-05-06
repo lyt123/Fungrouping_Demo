@@ -21,7 +21,17 @@ IlluminateRoute::$validators = array_filter($validators, function($validator) {
     return get_class($validator) != UriValidator::class;
 });
 
-Route::get('/', function () {
-    return view('welcome');
-});
+//Route::get('/', function () {
+//    return view('welcome');
+//});
+Route::post('/Home/User/addUser', 'UserController@addUser');
+
 Route::post('/Home/user/login', 'UserController@login');
+Route::get('/Home/user/logout', 'UserController@logout');
+Route::post('/Home/user/sendMsg', 'UserController@sendMsg');
+Route::POST('/Home/user/uploadAvatar', 'UserController@uploadAvatar');
+Route::POST('/Home/user/updatePassword', 'UserController@updatePassword');
+Route::POST('/Home/user/forgetPasswordSendMsg', 'UserController@forgetPasswordSendMsg');
+Route::POST('/Home/user/forgetPasswordCheckCode', 'UserController@forgetPasswordCheckCode');
+Route::POST('/Home/user/forgetPasswordNewPassword', 'UserController@forgetPasswordNewPassword');
+Route::get('/Home/userIntro/getUserIntro`', 'UserController@getUserIntro');
