@@ -10,14 +10,15 @@ class TeamRepository extends BaseRepository
 {
     const MODEL = Team::class;
 
-    public static function teamList($data)
+    public static function teamDetail($team_id)
     {
-        Model::
-        $where = [];
-        if($data['srh_string'])
-            $where['has_like'] = ['title', 'like', "%{$data['srh_string']}%"];
-        if($data['city_id']){
-            $where['where'] = ['city_id' => $data['city_id']];
-        }
+        //TODO 获取数据要关联team_join表
+        $with_data = [
+            'user' => function($query) {
+                $query->select('head_path', 'username');
+            }
+        ];
+
+        return static::getInstance()->where(['id' => $team_id])->with($with_data)->first();
     }
 }

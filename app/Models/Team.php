@@ -40,10 +40,17 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Team extends Model
 {
+    public $resourceFields = ['cover'];
+
     protected $table = 'team';
 
     protected $guarded = ['id'];
 
     public $timestamps  = false;
+
+    public function user()
+    {
+        return $this->belongsTo('App\Models\User');
+    }
 
 }

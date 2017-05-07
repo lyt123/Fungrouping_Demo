@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
+use App\Models\Team;
 use App\Repository\TeamJoinRepository;
 use App\Repository\TeamRepository;
 use App\Services\UploadService;
@@ -21,10 +22,16 @@ class TeamController extends Controller
      */
     public function index(Request $req)
     {
-        $data = $req->all();
+        $title = $req->input('title');
 
-        $result = TeamRepository::teamList($data);
+        $result = TeamRepository::read(
+            [
+                'where' => ['title' => ['like', '%'.$title.'%']],
+                'has_like' => true
+            ]
+        );
 
+        return success($result);
     }
 
     /**
@@ -48,6 +55,7 @@ class TeamController extends Controller
         $data = $req->except('expect_score');
 
         DB::beginTransaction();
+        session()->put('user.id', '2157');
 
         //添加活动
         $data['user_id'] = session()->get('user.id');
@@ -88,7 +96,10 @@ class TeamController extends Controller
      */
     public function show($id)
     {
-        //
+        $result = TeamRepository::teamDetail($id);
+//        $comment = Team::find(33);
+//        echo $comment->user->username;
+        return success($result);
     }
 
     /**
@@ -109,9 +120,27 @@ class TeamController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $req, $id)
     {
-        //
+        $data = $req->only('title', 'intro', 'phone', 'num_max',
+            'starttime', 'timelast', 'address', 'group_num', 'logo_id');
+
+        DB::beginTransaction();
+
+        //修改活动信息
+        $data['starttime'] = strtotime($data['starttime']);
+        TeamRepository::updateData($data, ['id' => $id]);
+
+        //上传图片(可以仿照趣组队thinkphp后台，那里是上传了cover以及多张picture，处理较为复杂)
+        $path = UploadService::upload(
+            $req,
+            ['name' => 'cover', 'position' => "upload/img/user{$data['user_id']}/team/"]
+        );
+
+        //TODO 修改封面图(PUT模式不支持上传图片，要单开个接口)
+
+        DB::commit();
+        return success();
     }
 
     /**
@@ -122,6 +151,8 @@ class TeamController extends Controller
      */
     public function destroy($id)
     {
-        //
+        TeamRepository::destroyData(['id' => $id]);
+
+        return success();
     }
 }

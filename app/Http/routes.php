@@ -36,3 +36,4 @@ Route::POST('/Home/user/forgetPasswordCheckCode', 'UserController@forgetPassword
 Route::POST('/Home/user/forgetPasswordNewPassword', 'UserController@forgetPasswordNewPassword');
 
 Route::resource('Fungrouping/Home/team', 'TeamController');
+Route::resource('Fungrouping/Home/joinTeam', 'TeamController');

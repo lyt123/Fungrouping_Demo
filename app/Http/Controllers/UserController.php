@@ -21,12 +21,12 @@ class UserController extends Controller
         $data = $req->all();
 
         $user_data = UserRepository::read(['where' => ['phone' => $data['phone']]], true);
-
+        f(session()->all());
         //要确保$user_data有值
         if ($user_data && UserRepository::validatePassword($data['password'], $user_data['password'])) {
             session()->put('user.id', $user_data['id']);
             unset($user_data['password']);
-
+f(session()->all());
             return success($user_data);
         }
 

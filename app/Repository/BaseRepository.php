@@ -10,15 +10,13 @@ class BaseRepository
         $fields = isset($param['fields']) ? $param['fields'] : ['*'];
 
         try {
-            if(isset($param['has_like']) || $or_where) {
+            if (isset($param['has_like']) || $or_where) {
                 $data = static::setCondition($where, $or_where)->select($fields)->get()->toArray();
-            }
-            else {
+            } else {
                 $data = static::query()->where($where)->select($fields)->get()->toArray();
             }
-            return ($is_first && $data) ? $data[0] :$data;
-        }
-        catch(\Exception $e) {
+            return ($is_first && $data) ? $data[0] : $data;
+        } catch (\Exception $e) {
             throw $e;
         }
     }
@@ -26,16 +24,16 @@ class BaseRepository
     public static function setCondition(array $where, array $or_where = [])
     {
         $object = static::query();
-        foreach($where as $key => $value) {
-            if(is_array($value))
+        foreach ($where as $key => $value) {
+            if (is_array($value))
                 $object = $object->where($key, $value[0], $value[1]);
             else
                 $object = $object->where($key, $value);
         }
 
-        if($or_where) {
-            foreach($or_where as $key => $value) {
-                if(is_array($value))
+        if ($or_where) {
+            foreach ($or_where as $key => $value) {
+                if (is_array($value))
                     $object = $object->orWhere($key, $value[0], $value[1]);
                 else
                     $object = $object->orWhere($key, $value);
@@ -47,7 +45,7 @@ class BaseRepository
 
     public static function query()
     {
-        return call_user_func(static::MODEL.'::query');
+        return call_user_func(static::MODEL . '::query');
     }
 
     public static function store(array $data)
@@ -55,13 +53,12 @@ class BaseRepository
         $instance = static::getInstance();
         try {
             $result = $instance->create($data);
-        }
-        catch(\Exception $e) {
+        } catch (\Exception $e) {
 
             //插入失败，则删除已存在的一些图片之类的资源
-            if($instance->resourceFields) {
+            if ($instance->resourceFields) {
                 $resource = get_data_in_array($data, $instance->resourceFields);
-                if($resource) remove_files($resource);
+                if ($resource) remove_files($resource);
             }
             throw $e;
         }
@@ -77,35 +74,52 @@ class BaseRepository
     public static function updateData(array $data, array $where = [])
     {
         try {
-            if(empty($data))
+            if (empty($data))
                 abort(422, trans('tips.nothing_update'));
             $object = static::setCondition($where);
             $instance = static::getInstance();
             //检测是否存在修改的资源字段
-            if($instance->resourceFields) {
+            if ($instance->resourceFields) {
 
                 $new_resources = get_data_in_array($data, $instance->resourceFields);
                 //如果需要，备份旧的资源字段
-                if(isset($new_resources) && $new_resources)
+                if (isset($new_resources) && $new_resources)
                     $old_resources = $object->select(array_keys($new_resources))->first();
             }
 
             $result = $object->update($data);
-            if(!$result)
+            if (!$result)
                 abort(422, trans('tips.nothing_update'));
 
-            if(isset($old_resources) && count($old_resources))
+            if (isset($old_resources) && count($old_resources))
                 remove_files($old_resources->toArray());
 
             return $result;
-        }
-        catch(\Exception $e) {
+        } catch (\Exception $e) {
 
-            if(isset($new_resources) && $new_resources)
+            if (isset($new_resources) && $new_resources)
                 remove_files($new_resources);
-            if(env('APP_DEBUG'))
+            if (env('APP_DEBUG'))
                 throw $e;
             abort(500);
         }
+    }
+
+    public static function destroyData(array $where, $need_error = true)
+    {
+        $object = static::setCondition($where);
+        $instance = static::getInstance();
+
+        if ($instance->resourceFields)
+            $resources = $object->select($instance->resourceFields)->get();
+        if ((!$result = $object->forceDelete()) && $need_error) {
+            abort(404, trans('tips.404'));
+        }
+
+        if(isset($resources) && count($resources)) {
+            foreach($resources->toArray() as $resource)
+                remove_files($resource);
+        }
+        return $result;
     }
 }
