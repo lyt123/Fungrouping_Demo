@@ -33,5 +33,15 @@ class User extends Model
     {
         return $this->hasMany('App\Models\Team');
     }
+
+    public function userintro()
+    {
+        return $this->hasOne(UserIntro::class, 'userid');
+    }
+
+    public function user_team()
+    {
+        return $this->belongsToMany(Team::class, 'team_join');
+    }
     
 }

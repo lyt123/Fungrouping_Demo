@@ -4,8 +4,6 @@ namespace App\Http\Controllers;
 
 
 use App\Http\Requests;
-use App\Http\Controllers\Controller;
-use App\Models\Team;
 use App\Repository\TeamJoinRepository;
 use App\Repository\TeamRepository;
 use App\Services\UploadService;
@@ -24,12 +22,13 @@ class TeamController extends Controller
     {
         $title = $req->input('title');
 
-        $result = TeamRepository::read(
-            [
-                'where' => ['title' => ['like', '%'.$title.'%']],
-                'has_like' => true
-            ]
-        );
+        //        $result = TeamRepository::read(
+        //            [
+        //                'where' => ['title' => ['like', '%' . $title . '%']],
+        //                'has_like' => true
+        //            ]
+        //        );
+        $result = TeamRepository::teamList($title);
 
         return success($result);
     }
@@ -44,15 +43,27 @@ class TeamController extends Controller
 
     }
 
+    public function uploadPicture(Request $req)
+    {
+        $path = UploadService::upload(
+            $req,
+            ['name' => 'create_team', 'position' => "upload/img/temporary-img/create-team/"]
+        );
+
+        return $path;
+    }
+
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $req)
     {
-        $data = $req->except('expect_score');
+
+
+        $data = $req->except(['expect_score', 'picture_paths']);
 
         DB::beginTransaction();
         session()->put('user.id', '2157');
@@ -75,6 +86,20 @@ class TeamController extends Controller
             ['id' => $result['id']]
         );
 
+        //获取活动图片,活动图片的上传在上面的uploadPicture接口单独控制，这里只接收path
+        $picture_paths = $req->get('picture_paths');
+        $team_pictures = [];
+        foreach($picture_paths as $picture_path) {
+            if(file_exists($picture_path)){
+                $suffix = explode(".", $picture_path)[1];
+                rename($picture_path, "upload/img/user".session()->get('user.id')."/team/".str_random(8).$suffix);
+                $team_pictures[] = ['team_id' => $result['id'], 'picture' => $picture_path];
+            }
+        }
+
+        if($team_pictures)
+            DB::table('team_pic')->insert($team_pictures);
+
         //发布人自动加入活动
         TeamJoinRepository::store(array(
             'team_user_id' => $data['user_id'],
@@ -91,21 +116,22 @@ class TeamController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
     public function show($id)
     {
+
         $result = TeamRepository::teamDetail($id);
-//        $comment = Team::find(33);
-//        echo $comment->user->username;
+        //        $comment = Team::find(33);
+        //        echo $comment->user->username;
         return success($result);
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -116,8 +142,8 @@ class TeamController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param  \Illuminate\Http\Request $request
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
     public function update(Request $req, $id)
@@ -146,7 +172,7 @@ class TeamController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)

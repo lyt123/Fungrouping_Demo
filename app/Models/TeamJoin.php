@@ -35,4 +35,14 @@ class TeamJoin extends Model
     protected $guarded = ['id'];
 
     public $timestamps  = false;
+
+    public function user()
+    {
+        return $this->belongsTo('App\Models\User');
+    }
+
+    public function team()
+    {
+        return $this->belongsTo('App\Models\Team');
+    }
 }

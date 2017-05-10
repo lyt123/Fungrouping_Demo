@@ -48,9 +48,26 @@ class Team extends Model
 
     public $timestamps  = false;
 
+
+
     public function user()
     {
         return $this->belongsTo('App\Models\User');
+    }
+
+    public function users()
+    {
+        return $this->belongsToMany('App\Models\User');
+    }
+
+    public function team_user()
+    {
+        return $this->belongsToMany(User::class, 'team_join')->withPivot('phone');
+    }
+
+    public function team_join()
+    {
+        return $this->belongsToMany('App\Models\User', 'team_join', 'team_id', 'user_id')->withPivot('phone');
     }
 
 }

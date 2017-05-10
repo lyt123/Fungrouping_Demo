@@ -24,6 +24,9 @@ IlluminateRoute::$validators = array_filter($validators, function($validator) {
 //Route::get('/', function () {
 //    return view('welcome');
 //});
+Route::get('/test', 'UserController@test');
+
+
 
 Route::post('/Home/user/login', 'UserController@login');
 Route::get('/Home/user/logout', 'UserController@logout');
@@ -35,5 +38,11 @@ Route::POST('/Home/user/forgetPasswordSendMsg', 'UserController@forgetPasswordSe
 Route::POST('/Home/user/forgetPasswordCheckCode', 'UserController@forgetPasswordCheckCode');
 Route::POST('/Home/user/forgetPasswordNewPassword', 'UserController@forgetPasswordNewPassword');
 
+
+Route::post('Fungrouping/Home/team/team-picture', 'TeamController@uploadPicture');
+
+Route::get('Fungrouping/Home/team/teamSelf', 'JoinTeamController@teamSelf');
+Route::get('Fungrouping/Home/team/teamInvited', 'JoinTeamController@teamInvited');
+Route::get('Fungrouping/Home/team/teamList', 'JoinTeamController@teamList');
 Route::resource('Fungrouping/Home/team', 'TeamController');
-Route::resource('Fungrouping/Home/joinTeam', 'TeamController');
+Route::resource('Fungrouping/Home/team.join', 'JoinTeamController'/*, ['only'=>['store', 'update', 'destroy']]*/);
