@@ -75,7 +75,7 @@ class BaseRepository
     {
         try {
             if (empty($data))
-                abort(422, trans('tips.nothing_update'));
+                abort(422, trans('tip.nothing_update'));
             $object = static::setCondition($where);
             $instance = static::getInstance();
             //检测是否存在修改的资源字段
@@ -89,7 +89,7 @@ class BaseRepository
 
             $result = $object->update($data);
             if (!$result)
-                abort(422, trans('tips.nothing_update'));
+                abort(422, trans('tip.nothing_update'));
 
             if (isset($old_resources) && count($old_resources))
                 remove_files($old_resources->toArray());
@@ -113,7 +113,7 @@ class BaseRepository
         if ($instance->resourceFields)
             $resources = $object->select($instance->resourceFields)->get();
         if ((!$result = $object->forceDelete()) && $need_error) {
-            abort(404, trans('tips.404'));
+            abort(404, trans('tip.404'));
         }
 
         if(isset($resources) && count($resources)) {

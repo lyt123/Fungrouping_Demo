@@ -43,5 +43,15 @@ class User extends Model
     {
         return $this->belongsToMany(Team::class, 'team_join');
     }
+
+    public function act()
+    {
+        return $this->hasMany(Act::class, 'userid');
+    }
+
+    public function user_acts()
+    {
+        return $this->belongsToMany(Act::class, 'joinact', 'userid', 'actid');
+    }
     
 }

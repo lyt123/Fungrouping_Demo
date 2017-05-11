@@ -61,8 +61,6 @@ class TeamController extends Controller
      */
     public function store(Request $req)
     {
-
-
         $data = $req->except(['expect_score', 'picture_paths']);
 
         DB::beginTransaction();
@@ -89,15 +87,18 @@ class TeamController extends Controller
         //获取活动图片,活动图片的上传在上面的uploadPicture接口单独控制，这里只接收path
         $picture_paths = $req->get('picture_paths');
         $team_pictures = [];
-        foreach($picture_paths as $picture_path) {
-            if(file_exists($picture_path)){
+        foreach ($picture_paths as $picture_path) {
+            if (file_exists($picture_path)) {
                 $suffix = explode(".", $picture_path)[1];
-                rename($picture_path, "upload/img/user".session()->get('user.id')."/team/".str_random(8).$suffix);
+                rename(
+                    $picture_path,
+                    "upload/img/user" . session()->get('user.id') . "/team/" . str_random(8) . $suffix
+                );
                 $team_pictures[] = ['team_id' => $result['id'], 'picture' => $picture_path];
             }
         }
 
-        if($team_pictures)
+        if ($team_pictures)
             DB::table('team_pic')->insert($team_pictures);
 
         //发布人自动加入活动

@@ -21,13 +21,10 @@ IlluminateRoute::$validators = array_filter($validators, function($validator) {
     return get_class($validator) != UriValidator::class;
 });
 
-//Route::get('/', function () {
-//    return view('welcome');
-//});
+//测试
 Route::get('/test', 'UserController@test');
 
-
-
+//用户
 Route::post('/Home/user/login', 'UserController@login');
 Route::get('/Home/user/logout', 'UserController@logout');
 Route::post('/Home/user/sendMsg', 'UserController@sendMsg');
@@ -38,7 +35,7 @@ Route::POST('/Home/user/forgetPasswordSendMsg', 'UserController@forgetPasswordSe
 Route::POST('/Home/user/forgetPasswordCheckCode', 'UserController@forgetPasswordCheckCode');
 Route::POST('/Home/user/forgetPasswordNewPassword', 'UserController@forgetPasswordNewPassword');
 
-
+//公开活动
 Route::post('Fungrouping/Home/team/team-picture', 'TeamController@uploadPicture');
 
 Route::get('Fungrouping/Home/team/teamSelf', 'JoinTeamController@teamSelf');
@@ -46,3 +43,16 @@ Route::get('Fungrouping/Home/team/teamInvited', 'JoinTeamController@teamInvited'
 Route::get('Fungrouping/Home/team/teamList', 'JoinTeamController@teamList');
 Route::resource('Fungrouping/Home/team', 'TeamController');
 Route::resource('Fungrouping/Home/team.join', 'JoinTeamController'/*, ['only'=>['store', 'update', 'destroy']]*/);
+
+//不公开活动
+Route::get('fungrouping/home/acts/self', 'ActController@myAct');
+Route::get('fungrouping/home/acts/invited', 'ActController@actInvited');
+Route::get('fungrouping/home/act/time/vote', 'ActController@teamVote');
+Route::get('fungrouping/home/act/join/detail', 'ActController@joinDetail');
+Route::get('fungrouping/home/act/qrcode', 'ActController@createActQRcode');
+Route::post('fungrouping/home/act/response/first', 'ActController@response');
+Route::post('fungrouping/home/act/response/again', 'ActController@reResponse');
+Route::post('fungrouping/home/act/join', 'ActController@join');
+Route::post('fungrouping/home/act/creater/response', 'ActController@createUserResponse');
+Route::post('fungrouping/home/act/creater/reject', 'ActController@createrRejectJoin');
+Route::resource('fungrouping/home/act', 'ActController');

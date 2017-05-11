@@ -8,6 +8,7 @@ use App\Repository\UserRepository;
 use App\Services\SMSService;
 use App\Services\UploadService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
@@ -295,6 +296,8 @@ class UserController extends Controller
         //            "team_id": 61,
         //      "user_id": 2158
         //    }
+
+        $data = DB::table('joinact')->lists('userid');
         f($data);
     }
 }
