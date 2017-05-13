@@ -31,4 +31,21 @@ class ActRepository extends BaseRepository
             ->paginate($limit)
             ->toArray();
     }
+
+    public static function detail($act_id, $user_id)
+    {
+        return static::setCondition(['id' => $act_id])
+            ->withCertain('user', ['username', 'id'])
+            ->withCertain('act_time')
+            ->withCertain('act_user', [], ['userid' => $user_id])
+            ->first(['id', 'title', 'ctime', 'join_num', 'intro', 'phone', 'logo_id', 'name_format', 'userid']);
+    }
+
+    public static function timeVote($act_id)
+    {
+        return static::setCondition(['id'=> $act_id])
+            ->withCertain('act_time', ['actid', 'id', 'starttime', 'votes'])
+            ->withCertain('act_user')
+            ->first(['id']);
+    }
 }

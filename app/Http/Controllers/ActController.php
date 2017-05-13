@@ -16,7 +16,7 @@ class ActController extends Controller
 {
     public function __construct()
     {
-//        $this->middleware('must_login');
+        //        $this->middleware('must_login');
     }
 
     /**
@@ -200,21 +200,49 @@ class ActController extends Controller
      * @param  int $id
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request,$id)
+    public function show($id)
     {
-        dd($id);
-        f();
+        $user_id = session()->get('user.id');
+        $result = ActRepository::detail($id, $user_id);
 
-        //act data username is_joined
+        $result['createuser'] = $result['user']['username'];
 
+        $result['is_createuser'] = $result['userid'] == $user_id ? 1 : 0;
 
-        //vote_state
+        $result['is_joined'] = $result['act_user'][0]['power'] != 1 ? 1 : 0;
 
-        //get time and address
+        $result['username'] = $result['user']['username'];
+        unset($result['user']);
 
+        if ($result['vote_state'] == 1) {
+            foreach ($result['act_time'] as $item) {
+                if ($item['choose'] == 1) {
+                    $result['starttime'] = $item['starttime'];
+                    $result['timelast'] = $item['timelast'];
+                }
+            }
+        } else {
+            foreach ($result['act_time'] as &$item) {
 
+                $user_time_voted = explode('-', $result['act_user'][0]['time_voted']);
+
+                $item['vote_for'] = in_array($item['id'], $user_time_voted) ? 1 : 0;
+            }
+        }
+
+        unset($result['act_user']);
+        return success($result);
     }
 
+    public function timeVote()
+    {
+        //路由出错了
+        $act_id = 394;
+        $result = ActRepository::timeVote($act_id);
+
+        return success($result);
+    }
+    
     /**
      * Show the form for editing the specified resource.
      *
@@ -254,11 +282,6 @@ class ActController extends Controller
 
     }
 
-    public function timeVote()
-    {
-
-    }
-
     public function joinDetail()
     {
 
@@ -274,7 +297,6 @@ class ActController extends Controller
     {
 
     }
-
 
 
 }
