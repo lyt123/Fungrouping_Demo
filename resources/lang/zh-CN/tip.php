@@ -19,6 +19,7 @@ return [
     | logic tips
     |—————————————————————————————————————
     */
+    //user
     'send_message_fail'                 =>             '短信发送失败',
     'code_error'                        =>             '验证码已失效或错误',
     'fail'                              =>             '操作失败',
@@ -29,6 +30,13 @@ return [
     'origin_password_wrong'             =>             '原密码错误',
     'not_check_code'                    =>             '请先验证手机号',
     'not_login'                         =>             '未登录',
+
+    //act
+    'not_act_creater'                   => '不是该活动创建者',
+    'time_and_address_not_belong_to_act'=> 'time_and_address_not_belong_to_act',
+    'already_join_act'                  => '你已参加该活动',
+    'timeid_forbid'                     => '该时间id不存在 或 不属于当前活动',
+    'addressid_forbid'                  => '该地点id不存在 或 不属于当前活动',
 
     'nothing_update'                    =>             '信息未改动',
     'register_success'                  =>             '注册成功',

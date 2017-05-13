@@ -71,12 +71,18 @@ class BaseRepository
         return new $instance;
     }
 
-    public static function updateData(array $data, array $where = [])
+    public static function updateData(array $data, $where)
     {
         try {
             if (empty($data))
                 abort(422, trans('tip.nothing_update'));
+
+            //update时默认的查找匹配字段为数据的id
+            if (!is_array($where))
+                $where = ['id' => $where];
+
             $object = static::setCondition($where);
+
             $instance = static::getInstance();
             //检测是否存在修改的资源字段
             if ($instance->resourceFields) {
@@ -116,10 +122,21 @@ class BaseRepository
             abort(404, trans('tip.404'));
         }
 
-        if(isset($resources) && count($resources)) {
-            foreach($resources->toArray() as $resource)
+        if (isset($resources) && count($resources)) {
+            foreach ($resources->toArray() as $resource)
                 remove_files($resource);
         }
         return $result;
+    }
+
+    public static function checkExist($where, $error_tip, $exist_abort = 0)
+    {
+        $object = static::setCondition($where);
+
+        if (!count($object->get()) && $exist_abort == 0)
+            abort(404, trans($error_tip));
+
+        if (count($object->get()) && $exist_abort == 1)
+            abort(404, trans($error_tip));
     }
 }

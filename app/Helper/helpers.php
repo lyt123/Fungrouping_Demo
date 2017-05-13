@@ -1,22 +1,24 @@
 <?php
 
-function d($data1 = 'haha', $data2 = '', $data3 = '', $data4 = ''){
-    if(gettype($data1) == 'object'){
+function d($data1 = 'haha', $data2 = '', $data3 = '', $data4 = '')
+{
+    if (gettype($data1) == 'object') {
         dump($data1->toArray());
-    }else{
+    } else {
         dump($data1);
     }
 }
 
-function f($data = 'hehe'){
-    if(gettype($data) == 'object'){
+function f($data = 'hehe')
+{
+    if (gettype($data) == 'object') {
         dd($data->toArray());
-    }else{
+    } else {
         dd($data);
     }
 }
 
-if(! function_exists('success')) {
+if (!function_exists('success')) {
 
     /**
      * Description : json返回请求成功相关信息
@@ -31,14 +33,14 @@ if(! function_exists('success')) {
         $message = $message ?: trans('tip.200');
 
         $response = [
-            'status'   => $status,
+            'status' => $status,
             'message' => $message
         ];
 
-        if(!empty($data))
+        if (!empty($data))
             $response['data'] = $data;
 
-        if(config('app.debug')) {
+        if (config('app.debug')) {
             $response['sql'] = \App\Providers\AppServiceProvider::$sql_listen;
         }
 
@@ -46,16 +48,16 @@ if(! function_exists('success')) {
     }
 }
 
-if(! function_exists('fail')) {
+if (!function_exists('fail')) {
 
     function fail($inform = false, $status = 422, $position = 'ajax_error')
     {
         $data = [
-            'status'  => $status,
+            'status' => $status,
             'inform' => $inform ?: trans('tip.fail')
         ];
 
-        if(config('app.debug')) {
+        if (config('app.debug')) {
             $data['position'] = $position;
             $data['sql'] = \App\Providers\AppServiceProvider::$sql_listen;
         }
@@ -66,7 +68,7 @@ if(! function_exists('fail')) {
     }
 }
 
-if(! function_exists('get_data_in_array')) {
+if (!function_exists('get_data_in_array')) {
 
     /**
      * Description : 获取数组中指定值组合
@@ -78,14 +80,14 @@ if(! function_exists('get_data_in_array')) {
     function get_data_in_array(array $data, array $keys)
     {
         $result = array();
-        foreach($keys as $key) {
-            if(isset($data[$key])) $result[$key] = $data[$key];
+        foreach ($keys as $key) {
+            if (isset($data[$key])) $result[$key] = $data[$key];
         }
         return $result;
     }
 }
 
-if(! function_exists('remove_file')) {
+if (!function_exists('remove_file')) {
 
     /**
      * Description : remove_files
@@ -95,13 +97,37 @@ if(! function_exists('remove_file')) {
      */
     function remove_files($paths)
     {
-        if(is_array($paths)) {
-            foreach($paths as $path) {
-                if(file_exists($path)) unlink($path);
+        if (is_array($paths)) {
+            foreach ($paths as $path) {
+                if (file_exists($path)) unlink($path);
             }
+        } else {
+            if (file_exists($paths)) unlink($paths);
         }
-        else {
-            if(file_exists($paths)) unlink($paths);
+    }
+}
+
+if (!function_exists('array_filter_except')) {
+
+    /**
+     * Description : 过滤掉数组中空值，除了指定允许为空的值
+     * Auth : Shelter
+     *
+     * @param array $data
+     * @param array $filed
+     */
+    function array_filter_except(array &$data/*, array $filed = []*/)
+    {
+        foreach ($data as $key => $value) {
+            //null表明前端并没有发送该字段,即使发送值为null也会被识别成字符,直接unset掉
+            if (is_null($value)) {
+                unset($data[$key]);
+                continue;
+            }
+            //为''值表明前端发送空值过来，判断不在in_array里面表示该字段不允许为空值，需要添加sometimes规则，否则报错
+            //            if(!in_array($key, $filed) && $value === '') {
+            //                abort(422, trans('tips.validation_tip'));
+            //            }
         }
     }
 }

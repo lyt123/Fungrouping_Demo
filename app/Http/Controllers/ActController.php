@@ -4,15 +4,19 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests;
 use App\Models;
+use App\Repository\ActAddressRepository;
 use App\Repository\ActJoinRepository;
+use App\Repository\ActRepository;
+use App\Repository\ActTimeRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class ActController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('must_login');
+//        $this->middleware('must_login');
     }
 
     /**
@@ -113,12 +117,12 @@ class ActController extends Controller
         }
 
         //先判断该id是否属于当前act，防止恶意修改其他活动的time的votes
-        if(
+        if (
             (count(Models\ActTime::where(['id' => $data['time_voted'], 'actid' => $data['actid']])->get()) == 0)
             &&
             (count(Models\ActAddress::where(['id' => $data['address_voted'], 'actid' => $data['actid']])->get()) == 0)
         ) {
-            return fail('传递的时间和地点id不存在');
+            return fail(trans('time_and_address_not_belong_to_act'));
         }
 
         Models\ActTime::where(['id' => $data['time_voted'], 'actid' => $data['actid']])->increment('votes');
@@ -132,9 +136,62 @@ class ActController extends Controller
         return success();
     }
 
-    public function join()
+    public function createUserResponse(Requests\Act\CreateUserResponseRequest $requests)
     {
+        $data = $requests->only('id', 'timeid', 'addressid');
 
+        ActRepository::checkExist(
+            ['id' => $data['id'], 'userid' => session()->get('user.id')], 'tip.not_act_creater'
+        );
+
+        //判断该time/address是否属于当前act
+        ActTimeRepository::checkExist(['actid' => $data['id'], 'id' => $data['timeid']], 'tip.timeid_forbid');
+        ActAddressRepository::checkExist(['actid' => $data['id'], 'id' => $data['addressid']], 'tip.addressid_forbid');
+
+        array_filter_except($data);
+
+        \DB::transaction(function () use ($data) {
+            if ($data['timeid'])
+                ActTimeRepository::updateData(['choose' => 1], $data['timeid']);
+            if ($data['addressid'])
+                Models\ActAddress::where(['id' => $data['addressid']])->update(['choose' => 1]);
+
+            Models\Act::where(['id' => $data['id']])->update(['vote_state' => 1]);
+        });
+
+        return success();
+    }
+
+    public function myAct(Request $request)
+    {
+        $limit = $request->input('count');
+
+        $result = ActRepository::myAct(session()->get('user.id'), $limit);
+
+        return success($result);
+    }
+
+    public function join(Requests\Act\JoinActRequest $request)
+    {
+        $data = $request->only('name_format', 'id');
+
+        $data['actid'] = $data['id'];
+        //checkexist
+        $data['userid'] = session()->get('user.id');
+
+        ActJoinRepository::checkExist(['actid' => $data['id'], 'userid' => $data['userid']], 'tip.already_join_act', 1);
+
+        //transaction
+        DB::beginTransaction();
+
+        //add join num
+        Models\Act::where(['id' => $data['id']])->increment('join_num');
+
+        //join
+        ActJoinRepository::store($data);
+
+        DB::commit();
+        return success();
     }
 
     /**
@@ -143,9 +200,19 @@ class ActController extends Controller
      * @param  int $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Request $request,$id)
     {
-        //
+        dd($id);
+        f();
+
+        //act data username is_joined
+
+
+        //vote_state
+
+        //get time and address
+
+
     }
 
     /**
@@ -203,20 +270,11 @@ class ActController extends Controller
     }
 
 
-    public function createUserResponse()
-    {
-
-    }
-
     public function createrRejectJoin()
     {
 
     }
 
 
-    public function myAct()
-    {
-
-    }
 
 }
