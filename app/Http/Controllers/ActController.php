@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests;
+use App\Http\Requests\Act\AddActRequest;
+use App\Http\Requests\Act\UpdateActRequest;
 use App\Models;
 use App\Repository\ActAddressRepository;
 use App\Repository\ActJoinRepository;
 use App\Repository\ActRepository;
 use App\Repository\ActTimeRepository;
+use App\Services\QRcodeService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -45,7 +47,7 @@ class ActController extends Controller
      * @param  \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Requests\Act\AddActRequest $request)
+    public function store(AddActRequest $request)
     {
         $act_data = $request->only("title", "phone", "name_format", "logo_id", "intro");
 
@@ -242,7 +244,12 @@ class ActController extends Controller
 
         return success($result);
     }
-    
+
+    public function createQRcode(Request $requests)
+    {
+        QRcodeService::generateQRcode($requests->text);
+    }
+
     /**
      * Show the form for editing the specified resource.
      *
@@ -256,25 +263,79 @@ class ActController extends Controller
 
     /**
      * Update the specified resource in storage.
+     * 此接口未测试
      *
      * @param  \Illuminate\Http\Request $request
      * @param  int $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(UpdateActRequest $request, $id)
     {
-        //
+        $data = $request->all();
+
+        array_filter_except($data);
+
+        //检验是否为活动发布者
+        ActRepository::checkExist(['id' => $data['id'], 'userid' => session()->get('user.id ')], 'tip.not_act_creater');
+
+        $time = json_decode($data['time'], 1);
+
+        $address = json_decode($data['address'], 1);
+
+        DB::beginTransaction();
+
+        ActRepository::updateData(
+            ['title' => $data['title'], 'intro' => $data['intro'], 'phone' => $data['phone']],
+            $data['id']
+        );
+
+        if (isset($data['add_time'])) {
+            //上面添加活动使用了这种方式，所以这里继续使用
+            Models\ActTime::addTime($data['id'], $time, 0);
+        }
+        if (isset($data['add_address'])) {
+            Models\ActAddress::addAddress($data['id'], $address, 0);
+        }
+        if (isset($data['delete_time'])) {
+            //这样可以批量删除，而且我这里要删除的数据没有包含资源字段，所以不适用BaseRepository的destroyData()
+            Models\ActTime::destroy($data['delete_time']);
+        }
+        if (isset($data['delete_address'])) {
+            Models\ActTime::destroy($data['delete_time']);
+        }
+
+        DB::commit();
+        return success();
     }
 
     /**
      * Remove the specified resource from storage.
      *
+     *
      * @param  int $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy()
     {
-        //
+        $id = 394;
+
+        $is_creater = ActJoinRepository::checkExist(
+            ['actid' => $id, 'userid' => session()->get('user.id'), 'power' => 0]
+        );
+
+        DB::beginTransaction();
+
+        if ($is_creater) {
+            ActRepository::destroyData(['id' => $id]);
+            ActTimeRepository::destroyData(['actid' => $id], false);
+            ActAddressRepository::destroyData(['actid' => $id], false);
+            ActJoinRepository::destroyData(['actid' => $id], false);
+        } else {
+            ActJoinRepository::destroyData(['actid' => $id, 'userid' => session()->get('user.id')], false);
+        }
+
+        DB::commit();
+        return success();
     }
 
     public function actInvited()
@@ -283,11 +344,6 @@ class ActController extends Controller
     }
 
     public function joinDetail()
-    {
-
-    }
-
-    public function createQRcode()
     {
 
     }

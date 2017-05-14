@@ -45,15 +45,14 @@ Route::resource('Fungrouping/Home/team', 'TeamController');
 Route::resource('Fungrouping/Home/team.join', 'JoinTeamController'/*, ['only'=>['store', 'update', 'destroy']]*/);
 
 //不公开活动
-Route::get('fungrouping/home/acts/self', 'ActController@myAct');
-Route::get('fungrouping/home/acts/invited', 'ActController@actInvited');
-Route::get('fungrouping/home/act/time/vote', 'ActController@timeVote');
-/*
-Route::get('fungrouping/home/act/join/detail', 'ActController@joinDetail');
-Route::get('fungrouping/home/act/qrcode', 'ActController@createActQRcode');
-Route::post('fungrouping/home/act/response/first', 'ActController@response');
-Route::post('fungrouping/home/act/response/again', 'ActController@reResponse');
-Route::post('fungrouping/home/act/join', 'ActController@join');
-Route::post('fungrouping/home/act/creater/response', 'ActController@createUserResponse');
-Route::post('fungrouping/home/act/creater/reject', 'ActController@createrRejectJoin');
-//Route::resource('fungrouping/home/act', 'ActController');
+//Route::post('fungrouping/home/act/join', 'ActController@join');
+//Route::get('fungrouping/home/act/qrcode', 'ActController@createQRcode');
+//Route::get('fungrouping/home/acts/self', 'ActController@myAct');
+//Route::get('fungrouping/home/acts/invited', 'ActController@actInvited');
+//Route::get('fungrouping/home/act/time/vote', 'ActController@timeVote');
+//Route::get('fungrouping/home/act/join/detail', 'ActController@joinDetail');
+//Route::post('fungrouping/home/act/response/first', 'ActController@response');
+//Route::post('fungrouping/home/act/response/again', 'ActController@reResponse');
+//Route::post('fungrouping/home/act/creater/response', 'ActController@createUserResponse');
+//Route::post('fungrouping/home/act/creater/reject', 'ActController@createrRejectJoin');
+Route::resource('fungrouping/home/act', 'ActController');

@@ -131,3 +131,39 @@ if (!function_exists('array_filter_except')) {
         }
     }
 }
+
+/**
+ * 合并验证规则
+ */
+if(! function_exists('merge_rules')) {
+
+    function merge_rules($rules, $common_rules) {
+
+        foreach($rules as $key => $value) {
+
+            if(isset($common_rules[$key])) {
+                if(is_array($value)) {
+
+                    if(is_array($common_rules[$key])) {
+                        $common_rules[$key] = array_merge($common_rules[$key], $value);
+                    }
+                    else {
+                        $value[] = $common_rules[$key];
+                        $common_rules[$key] = $value;
+                    }
+                    continue;
+                }
+                else {
+                    if(is_array($common_rules[$key])) {
+                        $common_rules[$key][] = $value;
+                        continue;
+                    }
+                }
+                $common_rules[$key] = $value.'|'.$common_rules[$key];
+                continue;
+            }
+            $common_rules[$key] = $value;
+        }
+        return $common_rules;
+    }
+}

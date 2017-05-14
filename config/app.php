@@ -146,7 +146,7 @@ return [
         App\Providers\RouteServiceProvider::class,
 
         //autoprompting
-        Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class
+        Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class,
 
     ],
 

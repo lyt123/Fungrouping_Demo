@@ -6,11 +6,13 @@ class Act extends BaseModel
 {
     protected $table = 'act';
 
+    //这里的活动没有图片
+    //    public $resourceFields = [''];
+
     protected $guarded = ['id'];
 
-//    const CREATED_AT = 'ctime';
-    public $timestamps  = false;
-
+    //    const CREATED_AT = 'ctime';
+    public $timestamps = false;
 
     public function user()
     {

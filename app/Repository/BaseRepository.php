@@ -129,9 +129,12 @@ class BaseRepository
         return $result;
     }
 
-    public static function checkExist($where, $error_tip, $exist_abort = 0)
+    public static function checkExist($where, $error_tip = '', $exist_abort = 0)
     {
         $object = static::setCondition($where);
+
+        if(empty($error_tip))
+            return count($object->get());
 
         if (!count($object->get()) && $exist_abort == 0)
             abort(404, trans($error_tip));
